@@ -1,0 +1,29 @@
+#!/bin/bash
+
+echo "Enter the full path to your Talos config directory:"
+read -e -p "Directory path: " DIR
+
+if [ ! -d "$DIR" ]; then
+  echo "❌ Directory not found: $DIR"
+  exit 1
+fi
+
+KUBECONFIG_PATH="$DIR/alternative-kubeconfig.yaml"
+TALOSCONFIG_PATH="$DIR/talosconfig"
+
+# Create the env file
+mkdir -p ~/.config
+ENV_FILE=~/.config/talos-env.sh
+cat <<EOF > $ENV_FILE
+export KUBECONFIG="$KUBECONFIG_PATH"
+export TALOSCONFIG="$TALOSCONFIG_PATH"
+EOF
+
+# Ensure it's sourced in .zshrc
+if ! grep -q "source ~/.config/talos-env.sh" ~/.zshrc; then
+  echo "source ~/.config/talos-env.sh" >> ~/.zshrc
+  echo "✅ Added sourcing line to ~/.zshrc"
+fi
+
+echo "✅ Environment configuration saved!"
+echo "Run: source ~/.zshrc  (or restart your terminal)"
